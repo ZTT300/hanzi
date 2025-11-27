@@ -1,0 +1,18 @@
+{
+  "name": "hanzi-kids-windows",
+  "version": "1.0.0",
+  "description": "HanziKids Windows 10 desktop app for learning Chinese characters with kid-friendly themes.",
+  "main": "main.js",
+  "author": "HanziKids",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "lint": "node -e \"console.log('No lint configured; add ESLint if desired.')\"",
+    "package": "npx electron-packager . HanziKids --platform=win32 --arch=x64 --overwrite"
+  },
+  "devDependencies": {
+    "electron": "^30.0.9",
+    "electron-packager": "^17.1.2"
+  }
+}

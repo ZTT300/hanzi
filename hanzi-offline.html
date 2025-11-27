@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HanziKids 本地学习页</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      --radius: 18px;
+      --accent: #4cc9f0;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 28px 22px 10px;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(10px);
+      background: rgba(247, 247, 251, 0.8);
+      z-index: 10;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    .subhead {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .search input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      background: var(--card);
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .chip:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .chip.active { background: #111827; color: #fff; }
+
+    main {
+      padding: 10px 22px 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      position: relative;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #fff;
+      width: fit-content;
+    }
+
+    .title {
+      font-size: 18px;
+      margin: 4px 0;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .description { color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    .characters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .character {
+      background: rgba(0, 0, 0, 0.03);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 15px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 10px;
+      align-items: center;
+    }
+
+    .character strong { font-size: 20px; }
+    .character small { color: var(--muted); }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #111827;
+      color: #fff;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 18px rgba(17, 24, 39, 0.2);
+    }
+    .btn.secondary { background: rgba(0, 0, 0, 0.05); color: #111827; box-shadow: none; }
+    .btn:hover { transform: translateY(-2px); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 20;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 18px;
+      max-width: 760px;
+      width: min(760px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal h2 { margin-top: 0; }
+    .close { float: right; cursor: pointer; font-size: 20px; color: var(--muted); }
+    .modal .section { margin: 14px 0; }
+    .badge { display: inline-block; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,0.05); font-size: 12px; }
+
+    footer {
+      text-align: center;
+      padding: 14px 10px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HanziKids — 主题生字练习</h1>
+    <p class="subhead">离线可用，无需安装。点击主题查看故事、笔顺提示、造句挑战。</p>
+    <div class="toolbar">
+      <div class="search">
+        <span>🔍</span>
+        <input id="search" type="text" placeholder="输入汉字、拼音或标题筛选..." />
+      </div>
+      <div class="chip" data-filter="all">全部年级</div>
+      <div class="chip" data-filter="低年级">低年级</div>
+      <div class="chip" data-filter="中年级">中年级</div>
+      <div class="chip" data-filter="高年级">高年级</div>
+    </div>
+  </header>
+
+  <main id="cards"></main>
+  <footer>双击卡片可快速展开详细内容，或点击“故事导入/笔顺提示/造句挑战”按钮。</footer>
+
+  <div class="modal-backdrop" id="modal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <span class="close" id="close">✕</span>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const themes = [
+      {
+        id: 'cars',
+        name: '赛车冒险',
+        color: '#e63c45',
+        accent: '#ffd166',
+        description: '跟着勇敢的小赛车学习速度与合作的汉字。',
+        band: '低年级',
+        lessons: [
+          {
+            title: '赛道上的伙伴',
+            grade: '一年级',
+            characters: [
+              { hanzi: '车', pinyin: 'chē', strokes: '横-竖-横折-横-竖-横折-横', meaning: 'vehicle' },
+              { hanzi: '快', pinyin: 'kuài', strokes: '横-竖-撇-点-点-横折', meaning: 'fast' },
+              { hanzi: '跑', pinyin: 'pǎo', strokes: '点-横撇-横折-撇-捺-撇-捺', meaning: 'run' },
+            ],
+            story: '小赛车在赛道上飞驰，学会了“车、快、跑”这些生字，并帮助朋友完成接力赛。',
+            practice: '用手指在空中画出笔顺，模仿赛车冲线的轨迹。',
+            challenge: '用“车、快、跑”编一个赛道上的句子，比如：“小车跑得真快！”',
+          },
+          {
+            title: '维修站日常',
+            grade: '二年级',
+            characters: [
+              { hanzi: '修', pinyin: 'xiū', strokes: '撇-横-竖-横-撇-横-撇-捺-横折折折钩-横', meaning: 'repair' },
+              { hanzi: '油', pinyin: 'yóu', strokes: '点-点-提-横-竖-横折-横-竖-横-点', meaning: 'oil' },
+              { hanzi: '灯', pinyin: 'dēng', strokes: '点-横撇-横钩-点-撇-竖弯钩-点-点', meaning: 'lamp' },
+            ],
+            story: '赛车进站，技师教小朋友认识“修、油、灯”，一起让赛车满血复活。',
+            practice: '跟着技师读拼音，再用铅笔写一遍，注意左右结构的平衡。',
+            challenge: '说一说你家见过的车灯长什么样，用新学的字描述。',
+          },
+        ],
+      },
+      {
+        id: 'space',
+        name: '航天探险',
+        color: '#1d3557',
+        accent: '#4cc9f0',
+        description: '乘坐火箭遨游太空，学习星星和行星的汉字。',
+        band: '中年级',
+        lessons: [
+          {
+            title: '火箭发射',
+            grade: '二年级',
+            characters: [
+              { hanzi: '火', pinyin: 'huǒ', strokes: '点-撇-撇-捺', meaning: 'fire' },
+              { hanzi: '箭', pinyin: 'jiàn', strokes: '横-竖-横折-横-竖钩-撇-竖-横折-横-撇-捺-点', meaning: 'arrow/rocket' },
+              { hanzi: '升', pinyin: 'shēng', strokes: '竖-横折-横-竖-竖-横', meaning: 'rise' },
+            ],
+            story: '火箭点火升空，带着孩子认识“火、箭、升”三字，倒数发射更有趣。',
+            practice: '跟着倒计时写笔顺：三、二、一，点火！',
+            challenge: '用“火、箭、升”造一个与太空有关的句子。',
+          },
+          {
+            title: '月球基地',
+            grade: '三年级',
+            characters: [
+              { hanzi: '月', pinyin: 'yuè', strokes: '撇-横撇-竖弯钩-横', meaning: 'moon' },
+              { hanzi: '光', pinyin: 'guāng', strokes: '撇-撇-横撇-横折-点', meaning: 'light' },
+              { hanzi: '石', pinyin: 'shí', strokes: '横-撇-横撇-撇-捺', meaning: 'stone' },
+            ],
+            story: '登上月球基地，采集“月光石”，体验外星课堂。',
+            practice: '在纸上画出弯弯的月牙，再把“月、光、石”写进去。',
+            challenge: '想象你在月球上看到什么，用新学的字写一段话。',
+          },
+        ],
+      },
+      {
+        id: 'hero',
+        name: '奥特英雄',
+        color: '#4b0082',
+        accent: '#ffafcc',
+        description: '跟着奥特曼打怪兽，练习勇气与正义的汉字。',
+        band: '高年级',
+        lessons: [
+          {
+            title: '城市守护',
+            grade: '三年级',
+            characters: [
+              { hanzi: '勇', pinyin: 'yǒng', strokes: '撇-竖-横折-横-竖-横折-横-撇-捺', meaning: 'brave' },
+              { hanzi: '守', pinyin: 'shǒu', strokes: '点-点-横撇-横-竖-横-竖-竖-横', meaning: 'guard' },
+              { hanzi: '城', pinyin: 'chéng', strokes: '点-点-提-横-竖-横折-横-竖-横-撇-捺', meaning: 'city' },
+            ],
+            story: '奥特英雄保卫城市，学会“勇、守、城”，并用光线技能驱赶怪兽。',
+            practice: '做一个“十”字站姿练习平衡，再写“勇”字的心字底。',
+            challenge: '用三个字写一句口号，例如：“勇守城市，人人平安。”',
+          },
+          {
+            title: '银河巡逻',
+            grade: '四年级',
+            characters: [
+              { hanzi: '星', pinyin: 'xīng', strokes: '横-竖-撇-捺-撇-捺-点', meaning: 'star' },
+              { hanzi: '巡', pinyin: 'xún', strokes: '撇-竖-横折-横-撇-捺-撇-竖-点', meaning: 'patrol' },
+              { hanzi: '光', pinyin: 'guāng', strokes: '撇-撇-横撇-横折-点', meaning: 'light' },
+            ],
+            story: '巡逻银河时，英雄找到闪亮的星光，复习“星、巡、光”。',
+            practice: '把“星”写成五角星的样子，再补充正确笔画。',
+            challenge: '写一写如果你有光线技能，会怎样保护地球。',
+          },
+        ],
+      },
+    ];
+
+    const cardsEl = document.getElementById('cards');
+    const searchInput = document.getElementById('search');
+    const chips = document.querySelectorAll('.chip');
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modal-content');
+    const closeBtn = document.getElementById('close');
+
+    let activeBand = 'all';
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeBand = chip.dataset.filter;
+        render();
+      });
+    });
+    chips[0].classList.add('active');
+
+    searchInput.addEventListener('input', render);
+
+    const flattenLessons = () =>
+      themes.flatMap((theme) =>
+        theme.lessons.map((lesson) => ({
+          ...lesson,
+          themeName: theme.name,
+          themeColor: theme.color,
+          accent: theme.accent,
+          band: theme.band,
+          description: theme.description,
+        }))
+      );
+
+    const filterBand = (band, lessons) => {
+      if (band === 'all') return lessons;
+      const mapping = { 低年级: ['一年级', '二年级'], 中年级: ['三年级'], 高年级: ['四年级', '五年级', '六年级'] };
+      return lessons.filter((l) => mapping[band]?.some((g) => l.grade.includes(g)));
+    };
+
+    function matchSearch(item, keyword) {
+      if (!keyword) return true;
+      const normalized = keyword.trim().toLowerCase();
+      return (
+        item.title.toLowerCase().includes(normalized) ||
+        item.themeName.toLowerCase().includes(normalized) ||
+        item.grade.toLowerCase().includes(normalized) ||
+        item.characters.some(
+          (c) =>
+            c.hanzi.includes(normalized) ||
+            c.pinyin.toLowerCase().includes(normalized) ||
+            c.meaning.toLowerCase().includes(normalized)
+        )
+      );
+    }
+
+    function render() {
+      const keyword = searchInput.value;
+      const lessons = filterBand(activeBand, flattenLessons()).filter((l) => matchSearch(l, keyword));
+      cardsEl.innerHTML = lessons
+        .map((lesson, idx) => {
+          const color = lesson.themeColor;
+          return `
+            <article class="card" style="border-top: 6px solid ${color}" data-idx="${idx}">
+              <div class="pill" style="background:${color};">${lesson.themeName}</div>
+              <div class="title">${lesson.title}<span class="badge">${lesson.grade}</span></div>
+              <p class="description">${lesson.description}</p>
+              <div class="characters">
+                ${lesson.characters
+                  .map(
+                    (c) => `
+                    <div class="character">
+                      <strong>${c.hanzi}</strong>
+                      <div>
+                        <div>${c.pinyin}</div>
+                        <small>${c.strokes}</small>
+                      </div>
+                    </div>`
+                  )
+                  .join('')}
+              </div>
+              <div class="actions">
+                <button class="btn secondary" data-action="story" data-idx="${idx}" style="color:${color}; background:${lesson.accent};">故事导入</button>
+                <button class="btn secondary" data-action="practice" data-idx="${idx}">笔顺提示</button>
+                <button class="btn" data-action="challenge" data-idx="${idx}">造句挑战</button>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+
+      cardsEl.querySelectorAll('.card').forEach((card) => {
+        card.addEventListener('dblclick', () => {
+          const idx = Number(card.dataset.idx);
+          showModal(lessons[idx], 'story');
+        });
+      });
+
+      cardsEl.querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.idx);
+          showModal(lessons[idx], btn.dataset.action);
+        });
+      });
+    }
+
+    function showModal(lesson, view) {
+      const sectionMap = {
+        story: { title: '故事导入', content: lesson.story },
+        practice: { title: '笔顺提示', content: lesson.practice },
+        challenge: { title: '造句挑战', content: lesson.challenge },
+      };
+      const section = sectionMap[view];
+      modalContent.innerHTML = `
+        <div class="pill" style="background:${lesson.themeColor};">${lesson.themeName}</div>
+        <h2>${lesson.title} <span class="badge">${lesson.grade}</span></h2>
+        <div class="section"><strong>生字 & 拼音</strong>
+          <div class="characters" style="margin-top:8px;">
+            ${lesson.characters
+              .map(
+                (c) => `
+                  <div class="character">
+                    <strong>${c.hanzi}</strong>
+                    <div>
+                      <div>${c.pinyin}</div>
+                      <small>${c.strokes}</small>
+                    </div>
+                  </div>`
+              )
+              .join('')}
+          </div>
+        </div>
+        <div class="section"><strong>${section.title}</strong><p class="description" style="margin-top:6px;">${section.content}</p></div>
+        <div class="section"><strong>拓展任务</strong><p class="description" style="margin-top:6px;">试着朗读拼音并按笔顺描红，在纸上完成自己的故事。</p></div>
+      `;
+      modal.style.display = 'flex';
+    }
+
+    closeBtn.addEventListener('click', () => (modal.style.display = 'none'));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+
+    render();
+  </script>
+</body>
+</html>
