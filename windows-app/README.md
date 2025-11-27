@@ -8,11 +8,6 @@
 3. 若需生成离线安装包（EXE），执行 `npm run package`，默认输出在 `windows-app/HanziKids-win32-x64/` 目录。
 4. Electron UI 内置“使用指南”和“打包成 EXE”按钮，方便小朋友或家长快速上手。
 
-## 本地 HTML 离线版
-1. 无需安装任何依赖，直接双击或右键用浏览器打开项目根目录下的 `hanzi-offline.html` 即可使用。
-2. 页面内置汽车、航天、奥特英雄三大主题课程，支持搜索汉字/拼音/标题、按年级段筛选，以及故事导入、笔顺提示、造句挑战的快速查看。
-3. 双击任意课程卡片或点击卡片内按钮可弹出详细内容窗口；所有文案与样式均内置，可离线使用。
-
 ## iOS 版（SwiftUI）
 1. 使用 **Xcode 15+** 新建 iOS SwiftUI App，名称可设为 `HanziKids`。
 2. 将 `HanziKids` 目录下的 `*.swift` 文件拷贝进项目（建议保留 Models/Data/Views 分组）。

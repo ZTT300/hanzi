@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HanziKids Windows</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-text">
+      <p class="badge">Windows 10 桌面版</p>
+      <h1>HanziKids 汉字冒险乐园</h1>
+      <p>选一个你喜欢的主题，跟着故事、笔顺练习和复述挑战学会小学六年级以内的汉字。</p>
+      <div class="hero-actions">
+        <button id="open-tutorial" class="primary">如何使用</button>
+        <button id="open-packaging" class="ghost">打包成 EXE</button>
+      </div>
+    </div>
+    <div class="hero-illustration" aria-hidden="true">🚀 🚗 🦸‍♂️</div>
+  </header>
+
+  <section class="theme-grid" id="theme-grid"></section>
+  <section class="lesson-panel" id="lesson-panel" aria-live="polite"></section>
+
+  <template id="lesson-template">
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div>
+          <p class="pill grade"></p>
+          <h3 class="lesson-title"></h3>
+        </div>
+        <span class="lesson-tag">故事 + 笔顺 + 复述</span>
+      </div>
+      <p class="story"></p>
+      <div class="characters"></div>
+      <div class="practice">
+        <h4>笔顺练习</h4>
+        <p class="practice-text"></p>
+      </div>
+      <div class="challenge">
+        <h4>复述挑战</h4>
+        <p class="challenge-text"></p>
+      </div>
+    </div>
+  </template>
+
+  <dialog id="guide">
+    <h2>使用指南</h2>
+    <ol>
+      <li>选择一个主题卡片（赛车、航天或奥特英雄）。</li>
+      <li>浏览课程，先读故事，再练笔顺，最后完成复述挑战。</li>
+      <li>点击“打包成 EXE”可把本项目打包到 Windows 10 电脑安装。</li>
+    </ol>
+    <button class="primary" id="close-guide">我知道了</button>
+  </dialog>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
